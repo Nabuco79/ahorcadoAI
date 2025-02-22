@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego del Ahorcado - Revolución Mexicana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen">
+    <div class="max-w-lg bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold text-center mb-4">Ahorcado: Revolución Mexicana</h1>
+        <p class="text-sm text-gray-400 mb-4">Adivina la respuesta correcta antes de agotar los intentos.</p>
+        
+        <p id="question" class="text-lg font-semibold text-center mb-4"></p>
+        <div id="word" class="flex justify-center gap-2 text-xl font-bold mb-4"></div>
+        <p class="text-center text-red-400">Intentos restantes: <span id="attempts">6</span></p>
+        <div class="grid grid-cols-9 gap-2 mt-4" id="letters"></div>
+        <p id="message" class="text-center font-semibold mt-4"></p>
+        <button onclick="resetGame()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Reiniciar Juego</button>
+    </div>
+
+    <script>
+        const questions = [
+            { question: "¿Quién fue el líder de la Revolución Mexicana conocido como 'El Centauro del Norte'?", answer: "VILLAPANCHO" },
+            { question: "¿En qué año inició la Revolución Mexicana?", answer: "1910" },
+            { question: "¿Qué presidente fue derrocado al inicio de la Revolución?", answer: "DIAZ" },
+            { question: "¿Qué plan proclamó Francisco I. Madero para derrocar a Porfirio Díaz?", answer: "PLANDE SANLUIS" },
+            { question: "¿Quién fue asesinado en la Decena Trágica en 1913?", answer: "MADERO" }
+        ];
+
+        let selectedQuestion = {};
+        let guessedLetters = [];
+        let attemptsLeft = 6;
+
+        function startGame() {
+            selectedQuestion = questions[Math.floor(Math.random() * questions.length)];
+            guessedLetters = Array(selectedQuestion.answer.length).fill('_');
+            attemptsLeft = 6;
+            document.getElementById("question").textContent = selectedQuestion.question;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById("word").innerHTML = guessedLetters.map(letter => `<span>${letter}</span>`).join(' ');
+            document.getElementById("attempts").textContent = attemptsLeft;
+            document.getElementById("message").textContent = "";
+            document.getElementById("letters").innerHTML = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('').map(letter => 
+                `<button class="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-400" onclick="guessLetter('${letter}')">${letter}</button>`
+            ).join('');
+        }
+
+        function guessLetter(letter) {
+            if (selectedQuestion.answer.includes(letter)) {
+                selectedQuestion.answer.split('').forEach((char, index) => {
+                    if (char === letter) guessedLetters[index] = letter;
+                });
+            } else {
+                attemptsLeft--;
+            }
+            checkGameStatus();
+        }
+
+        function checkGameStatus() {
+            if (!guessedLetters.includes('_')) {
+                document.getElementById("message").textContent = "¡Felicidades! Has ganado.";
+                disableButtons();
+                return;
+            }
+            if (attemptsLeft === 0) {
+                document.getElementById("message").textContent = "Has perdido. La respuesta era: " + selectedQuestion.answer;
+                disableButtons();
+                return;
+            }
+            updateDisplay();
+        }
+
+        function disableButtons() {
+            document.getElementById("letters").innerHTML = "";
+        }
+
+        function resetGame() {
+            startGame();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
